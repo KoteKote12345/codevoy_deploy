@@ -20,6 +20,9 @@ scroll_x = 0
 player = None
 enemies = []
 
+stage_list = ["assets/platformer.pyxres", "assets/platformer.pyxres", "assets/platformer.pyxres"]
+stage_num = 0
+
 
 def get_tile(tile_x, tile_y):
     return pyxel.tilemaps[0].pget(tile_x, tile_y)
@@ -222,7 +225,7 @@ class Enemy3Bullet:
         pyxel.blt(self.x, self.y, 0, u, 32, 8, 8, TRANSPARENT_COLOR)
 
 
-class App:
+class Stage:
     def __init__(self):
         pyxel.init(128, 128, title="Pyxel Platformer")
         pyxel.load("assets/platformer.pyxres")
@@ -245,6 +248,7 @@ class App:
             if abs(player.x - enemy.x) < 6 and -2 < player.y - enemy.y < 6:
                 game_over()
                 return
+            enemy.update()
             if abs(player.x - enemy.x) < 6  and -6 <= player.y - enemy.y  <= -2:
                 pyxel.play(3, 8)
                 enemies.remove(enemy)
@@ -281,4 +285,10 @@ def game_over():
     pyxel.play(3, 9)
 
 
+def App():
+    pyxel.init(128, 128, title="Pyxel Platformer")
+    Stage()
+
 App()
+
+
