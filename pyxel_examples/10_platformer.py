@@ -91,17 +91,31 @@ class Player:
         self.jump_start = 0
         self.direction = 1
         self.is_falling = False
+        self.is_moving_left = False  # 左方向の移動状態
+        self.is_moving_right = False  # 左方向の移動状態
 
+    ##　一旦左右のキーを押したらその方向に進み続ける仕様にした
     def update(self):
         global scroll_x
         last_y = self.y
         if pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_LEFT):
+            self.is_moving_right = True  # 右移動を有効にする
+            self.is_moving_left = False  # 左移動を無効化
             self.dx = -2
             self.direction = -1
         if pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT):
+            self.is_moving_left = True  # 左移動を有効にする
+            self.is_moving_right = False # 右移動を無効化
             self.dx = 2
             self.direction = 1
         self.dy = min(self.dy + 1, 3)
+
+        # ひとまず下キー押したら止まる仕様
+        if pyxel.btnp(pyxel.KEY_DOWN) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN):
+            self.is_moving_right = False  # 右移動を無効にする
+            self.is_moving_left = False  # 左移動を無効にする
+            self.dx = 0
+
         if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A):
             current_time = time.time()
             if (current_time - self.jump_start > 0.5):
@@ -109,6 +123,12 @@ class Player:
                 pyxel.play(3, 8)
                 self.jump_start = current_time
         self.x, self.y = push_back(self.x, self.y, self.dx, self.dy)
+
+        # 継続移動処理
+        if self.is_moving_right:
+            self.dx = -3
+        elif self.is_moving_left:
+            self.dx = 3
         if self.x < scroll_x:
             self.x = scroll_x
         if self.y < 0:
