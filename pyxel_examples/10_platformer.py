@@ -6,6 +6,7 @@
 # version: 1.0
 
 import pyxel
+import time
 
 TRANSPARENT_COLOR = 2
 SCROLL_BORDER_X = 80
@@ -87,6 +88,7 @@ class Player:
         self.y = y
         self.dx = 0
         self.dy = 0
+        self.jump_start = 0
         self.direction = 1
         self.is_falling = False
 
@@ -101,8 +103,11 @@ class Player:
             self.direction = 1
         self.dy = min(self.dy + 1, 3)
         if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A):
-            self.dy = -6
-            pyxel.play(3, 8)
+            current_time = time.time()
+            if (current_time - self.jump_start > 0.5):
+                self.dy = -6
+                pyxel.play(3, 8)
+                self.jump_start = current_time
         self.x, self.y = push_back(self.x, self.y, self.dx, self.dy)
         if self.x < scroll_x:
             self.x = scroll_x
