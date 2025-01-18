@@ -105,7 +105,7 @@ class Player:
         if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A):
             current_time = time.time()
             if (current_time - self.jump_start > 0.5):
-                self.dy = -6
+                self.dy = -9
                 pyxel.play(3, 8)
                 self.jump_start = current_time
         self.x, self.y = push_back(self.x, self.y, self.dx, self.dy)
