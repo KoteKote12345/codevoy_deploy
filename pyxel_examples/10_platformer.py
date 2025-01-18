@@ -242,10 +242,14 @@ class App:
 
         player.update()
         for enemy in enemies:
-            if abs(player.x - enemy.x) < 6 and abs(player.y - enemy.y) < 6:
+            if abs(player.x - enemy.x) < 6 and -2 < player.y - enemy.y < 6:
                 game_over()
                 return
-            enemy.update()
+            if abs(player.x - enemy.x) < 6  and -6 <= player.y - enemy.y  <= -2:
+                pyxel.play(3, 8)
+                enemies.remove(enemy)
+                enemy.is_alive = False
+                player.x, player.y = push_back(player.x, player.y, player.dx, -10)
             if enemy.x < scroll_x - 8 or enemy.x > scroll_x + 160 or enemy.y > 160:
                 enemy.is_alive = False
         cleanup_entities(enemies)
