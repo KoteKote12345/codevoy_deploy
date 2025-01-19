@@ -22,7 +22,7 @@ TILE_FLOOR = (1, 0)
 TILE_SPAWN1 = (0, 1)
 TILE_SPAWN2 = (1, 1)
 TILE_SPAWN3 = (2, 1)
-# GOAL = (3, 1)
+GOAL = (0, 8)
 WALL_TILE_X = 4
 
 scroll_x = 0
@@ -110,6 +110,16 @@ def spawn_enemy(left_x, right_x):
             elif tile == TILE_SPAWN3:
                 enemies.append(Enemy3(x * 8, y * 8))
 
+def spawn_goal(left_x, right_x):
+    left_x = pyxel.ceil(left_x / 8)
+    right_x = pyxel.floor(right_x / 8)
+    for x in range(left_x, right_x + 1):
+        for y in range(16):
+            tile = get_tile(x, y)
+            if tile == TILE_SPAWN1:
+                global goal
+                goal == Goal(x * 8, y * 8)
+
 
 def cleanup_entities(entities):
     for i in range(len(entities) - 1, -1, -1):
@@ -175,6 +185,7 @@ class Player:
             last_scroll_x = scroll_x
             scroll_x = min(self.x - SCROLL_BORDER_X, 240 * 8)
             spawn_enemy(last_scroll_x + 128, scroll_x + 127)
+            spawn_goal(last_scroll_x + 128, scroll_x + 127)
         if self.y >= pyxel.height:
             game_over()
 
@@ -329,8 +340,8 @@ class Stage:
         global timer
         timer += 1
 
-        # if abs(player.x- goal.x) < 6:
-        #     clear()
+        if abs(player.x- goal.x) < 6:
+            clear()
 
 
     def draw(self):
