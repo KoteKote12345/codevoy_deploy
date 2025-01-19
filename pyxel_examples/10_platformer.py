@@ -31,7 +31,7 @@ enemies = []
 goal = None
 
 timer = 0
-stage_list = ["assets/platformer.pyxres", "assets/platformer.pyxres", "assets/platformer.pyxres"]
+stage_list = ["assets/platformer.pyxres", "assets/platformer2.pyxres", "assets/platformer3.pyxres"]
 stage_num = 0
 
 def record_audio():
@@ -136,7 +136,7 @@ class Player:
         self.jump_start = 0
         self.direction = 1
         self.is_falling = False
-        self.is_moving_left = False 
+        self.is_moving_left = False
         self.is_moving_right = False
 
 
@@ -145,20 +145,20 @@ class Player:
         global scroll_x
         last_y = self.y
         if pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_LEFT) or audio_direction == "左":
-            self.is_moving_right = True  
-            self.is_moving_left = False  
+            self.is_moving_right = True
+            self.is_moving_left = False
             self.dx = -2
             self.direction = -1
         if pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT) or audio_direction == "右":
-            self.is_moving_left = True  
-            self.is_moving_right = False 
+            self.is_moving_left = True
+            self.is_moving_right = False
             self.dx = 2
             self.direction = 1
         self.dy = min(self.dy + 1, 3)
 
         if pyxel.btnp(pyxel.KEY_DOWN) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN):
-            self.is_moving_right = False  
-            self.is_moving_left = False  
+            self.is_moving_right = False
+            self.is_moving_left = False
             self.dx = 0
 
         if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A) or audio_direction == "上":
@@ -319,7 +319,7 @@ class Stage:
             audio_data = record_audio()
             self.direction = get_most_similar_direction(audio_data)
             print(f"最も近い方向: '{self.direction}'")
-            
+
         if pyxel.btn(pyxel.KEY_Q):
             pyxel.quit()
 
@@ -339,9 +339,9 @@ class Stage:
         cleanup_entities(enemies)
         global timer
         timer += 1
-
-        if abs(player.x- goal.x) < 6:
-            clear()
+        if goal != None:
+            if abs(player.x- goal.x) < 6:
+                clear()
 
 
     def draw(self):
@@ -367,21 +367,21 @@ class Stage:
 def game_over():
     #ゲームオーバーになったら変数を初期化
     global timer, enemies, player, scroll_x
-    pyxel.play(3, 9) 
+    pyxel.play(3, 9)
     restart_x = (pyxel.width - len("Press SPACE to Restart") * 4) // 2
     while True:
-        pyxel.cls(0) 
-        pyxel.camera(scroll_x, 0)  
+        pyxel.cls(0)
+        pyxel.camera(scroll_x, 0)
         pyxel.bltm(0, 0, 0, scroll_x, 0, 128, 128, TRANSPARENT_COLOR)
         player.draw()
         for enemy in enemies:
             enemy.draw()
-        pyxel.camera() 
-        pyxel.rect(34, 48, 60, 32, 0) 
+        pyxel.camera()
+        pyxel.rect(34, 48, 60, 32, 0)
         pyxel.text(44, 56, "GAME OVER", pyxel.frame_count % 16)
         pyxel.text(restart_x, 68, "Press SPACE to Restart", 7)
-        pyxel.flip()  
-        if pyxel.btnp(pyxel.KEY_SPACE): 
+        pyxel.flip()
+        if pyxel.btnp(pyxel.KEY_SPACE):
             break
     scroll_x = 0
     player.x = 0
