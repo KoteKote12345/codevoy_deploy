@@ -14,7 +14,7 @@ import wave
 from sample import get_text, closest_direction
 # 録音設定
 SAMPLE_RATE = 44100  # サンプルレート（44.1kHz）
-DURATION = 1       # 録音時間（1秒）
+DURATION = 5       # 録音時間（1秒）
 
 TRANSPARENT_COLOR = 2
 SCROLL_BORDER_X = 80
@@ -35,7 +35,7 @@ stage_list = ["assets/platformer.pyxres", "assets/platformer.pyxres", "assets/pl
 stage_num = 0
 
 def record_audio():
-    """マイクから音声を0.5秒録音"""
+    """マイクから音声を1秒録音"""
     print("録音中...")
     audio_data = sd.rec(int(SAMPLE_RATE * DURATION), samplerate=SAMPLE_RATE, channels=1, dtype='float32')
     sd.wait()  # 録音終了まで待機
