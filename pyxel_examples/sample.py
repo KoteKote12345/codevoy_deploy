@@ -39,6 +39,7 @@ def closest_direction(input_text:str)->str:
     """
     encoding_input_text = model.encode([input_text])
     similarities = cosine_similarity(encoding_input_text, direction_embeddings).flatten()
+    print(similarities)
     most_similar_direction = directions[similarities.argmax()]
     return most_similar_direction
 
