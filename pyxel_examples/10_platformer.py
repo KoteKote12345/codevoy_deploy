@@ -246,7 +246,7 @@ class Enemy3Bullet:
     def draw(self):
         u = pyxel.frame_count // 2 % 2 * 8 + 16
         pyxel.blt(self.x, self.y, 0, u, 32, 8, 8, TRANSPARENT_COLOR)
-class Goal():
+class Goal:
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -260,7 +260,6 @@ class Goal():
 
 class Stage:
     def __init__(self):
-        # pyxel.load("ステージ名の画像")
         pyxel.load(stage_list[stage_num])
 
         # Change enemy spawn tiles invisible
@@ -316,6 +315,7 @@ class Stage:
 
 
 def game_over():
+    #ゲームオーバーになったら変数を初期化
     global scroll_x, enemies, stage
     scroll_x = 0
     player.x = 0
@@ -329,19 +329,19 @@ def game_over():
     pyxel.play(3, 9)
 
 def clear():
-    #  pyxel.load("クリア画面")
-    if stage_num == 2:
-        pyxel.cls(0)
-        pyxel.text(55, 41, "コンプリートおめでとう！", 5)
+    #  ここにクリア画面を置く
+    #ステージを進める
     stage_num += 1
-    global stage
-    stage = Stage()
 
 
 def App():
     pyxel.init(128, 128, title="Pyxel Platformer")
-    global stage
-    stage = Stage()
+    #3ステージ終わるまでループ処理
+    while stage_num < 3:
+        global stage
+        stage = Stage()
+    pyxel.cls(0)
+    pyxel.text(55, 41, "コンプリートおめでとう！", 5)
 
 App()
 
