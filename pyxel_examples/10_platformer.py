@@ -7,6 +7,14 @@
 
 import pyxel
 import time
+import sounddevice as sd
+import numpy as np
+import tempfile
+import wave
+from sample import get_text, closest_direction
+# 録音設定
+SAMPLE_RATE = 44100  # サンプルレート（44.1kHz）
+DURATION = 5       # 録音時間（1秒）
 
 TRANSPARENT_COLOR = 2
 SCROLL_BORDER_X = 80
@@ -26,6 +34,27 @@ timer = 0
 stage_list = ["assets/platformer.pyxres", "assets/platformer.pyxres", "assets/platformer.pyxres"]
 stage_num = 0
 
+def record_audio():
+    """マイクから音声を1秒録音"""
+    print("録音中...")
+    audio_data = sd.rec(int(SAMPLE_RATE * DURATION), samplerate=SAMPLE_RATE, channels=1, dtype='float32')
+    sd.wait()  # 録音終了まで待機
+    print("録音完了")
+    audio_16bit=audio_data / audio_data.max() * np.iinfo(np.int16).max
+    return audio_16bit.astype(np.int16)
+
+def get_most_similar_direction(audio_data):
+    # 一時ファイルに保存
+    with tempfile.NamedTemporaryFile(delete=True, suffix=".wav", mode="wb") as temp_file:
+        # WAV ファイルを書き込み
+        with wave.open(temp_file.name, 'wb') as wav_file:
+            wav_file.setnchannels(1)  # モノラル
+            wav_file.setsampwidth(2)  # サンプル幅（2バイト = 16ビット）
+            wav_file.setframerate(SAMPLE_RATE)  # サンプルレート
+            wav_file.writeframes(audio_data.tobytes())  # データを書き込み
+        input_text=get_text(temp_file.name)
+        print(f"入力テキスト: '{input_text}'")
+        return closest_direction(input_text)
 
 def get_tile(tile_x, tile_y):
     return pyxel.tilemaps[0].pget(tile_x, tile_y)
@@ -272,6 +301,11 @@ class Stage:
         pyxel.playm(0, loop=True)
         pyxel.run(self.update, self.draw)
     def update(self):
+        if pyxel.btnp(pyxel.KEY_R):  # 'R'キーを押したら録音
+            audio_data = record_audio()
+            result = get_most_similar_direction(audio_data)
+            print(f"最も近い方向: '{result}'")
+            
         if pyxel.btn(pyxel.KEY_Q):
             pyxel.quit()
 

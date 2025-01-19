@@ -26,9 +26,6 @@ def get_text(audio_path:str)->str:
   result = whisper.decode(wmodel, mel)
   return result.text
 
-def get_similarity(encoding1,encoding2):
-    """numpy配列のエンコーディングを受け取り、その類似度を返す"""
-    return np.dot(encoding1, encoding2) / (np.linalg.norm(encoding1) * np.linalg.norm(encoding2))
 
 def closest_direction(input_text:str)->str:
     """
@@ -42,6 +39,7 @@ def closest_direction(input_text:str)->str:
     """
     encoding_input_text = model.encode([input_text])
     similarities = cosine_similarity(encoding_input_text, direction_embeddings).flatten()
+    print(similarities)
     most_similar_direction = directions[similarities.argmax()]
     return most_similar_direction
 
