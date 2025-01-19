@@ -126,30 +126,29 @@ class Player:
         self.jump_start = 0
         self.direction = 1
         self.is_falling = False
-        self.is_moving_left = False  # 左方向の移動状態
-        self.is_moving_right = False  # 左方向の移動状態
+        self.is_moving_left = False 
+        self.is_moving_right = False
 
-    ##　一旦左右のキーを押したらその方向に進み続ける仕様にした
+
     def update(self,direction,presed_r):
         audio_direction=direction if presed_r else None
         global scroll_x
         last_y = self.y
         if pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_LEFT) or audio_direction == "左":
-            self.is_moving_right = True  # 右移動を有効にする
-            self.is_moving_left = False  # 左移動を無効化
+            self.is_moving_right = True  
+            self.is_moving_left = False  
             self.dx = -2
             self.direction = -1
         if pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT) or audio_direction == "右":
-            self.is_moving_left = True  # 左移動を有効にする
-            self.is_moving_right = False # 右移動を無効化
+            self.is_moving_left = True  
+            self.is_moving_right = False 
             self.dx = 2
             self.direction = 1
         self.dy = min(self.dy + 1, 3)
 
-        # ひとまず下キー押したら止まる仕様
         if pyxel.btnp(pyxel.KEY_DOWN) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN):
-            self.is_moving_right = False  # 右移動を無効にする
-            self.is_moving_left = False  # 左移動を無効にする
+            self.is_moving_right = False  
+            self.is_moving_left = False  
             self.dx = 0
 
         if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A) or audio_direction == "上":
@@ -160,7 +159,7 @@ class Player:
                 self.jump_start = current_time
         self.x, self.y = push_back(self.x, self.y, self.dx, self.dy)
 
-        # 継続移動処理
+
         if self.is_moving_right:
             self.dx = -3
         elif self.is_moving_left:
@@ -356,7 +355,23 @@ class Stage:
 
 def game_over():
     #ゲームオーバーになったら変数を初期化
-    global scroll_x, enemies, stage
+    global timer, enemies, player, scroll_x
+    pyxel.play(3, 9) 
+    restart_x = (pyxel.width - len("Press SPACE to Restart") * 4) // 2
+    while True:
+        pyxel.cls(0) 
+        pyxel.camera(scroll_x, 0)  
+        pyxel.bltm(0, 0, 0, scroll_x, 0, 128, 128, TRANSPARENT_COLOR)
+        player.draw()
+        for enemy in enemies:
+            enemy.draw()
+        pyxel.camera() 
+        pyxel.rect(34, 48, 60, 32, 0) 
+        pyxel.text(44, 56, "GAME OVER", pyxel.frame_count % 16)
+        pyxel.text(restart_x, 68, "Press SPACE to Restart", 7)
+        pyxel.flip()  
+        if pyxel.btnp(pyxel.KEY_SPACE): 
+            break
     scroll_x = 0
     player.x = 0
     player.y = 0
@@ -366,7 +381,6 @@ def game_over():
     timer = 0
     enemies = []
     spawn_enemy(0, 127)
-    pyxel.play(3, 9)
 
 def clear():
     #  ここにクリア画面を置く
