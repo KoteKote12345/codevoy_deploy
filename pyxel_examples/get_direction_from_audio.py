@@ -1,39 +1,49 @@
-import whisper
-import os
 import numpy as np
-import os
-import subprocess
+import os  # 必要に応じて残す
+import time
+import whisper # whisperをimport
 from transformers import RobertaTokenizer
-import whisper 
 from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
-import time
-# モデルをロード
-model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
+import torch
+
+# デバイスをCPUに設定
+device = torch.device('cpu')
+
+# whisperモデルのロード
+whisper_model = whisper.load_model("tiny") # モデルサイズを指定 (例: "tiny", "base", "small", "medium", "large")
+whisper_model.to(device) # whisperモデルもdeviceに配置
+
+# SentenceTransformerモデルのロード
+model = SentenceTransformer('paraphrase-MiniLM-L6-v2', device=device)
+
+# RobertaTokenizerをロード
+tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
+tokenizer.to(device)
 
 # ターゲット単語
 directions = ["上", "右","左"]
 
 # ベクトル化
 direction_embeddings = model.encode(directions)
-wmodel = whisper.load_model("small")
+wmodel = whisper_model.load_model("small")
 
 def get_text(audio_path:str)->str:
   """audioのパスを受け取り、その音声ファイルのテキストを返す"""
-  audio = whisper.load_audio(audio_path)
-  audio = whisper.pad_or_trim(audio)
-  mel = whisper.log_mel_spectrogram(audio).to(wmodel.device)
-  result = whisper.decode(wmodel, mel)
+  audio = whisper_model.load_audio(audio_path)
+  audio = whisper_model.pad_or_trim(audio)
+  mel = whisper_model.log_mel_spectrogram(audio).to(wmodel.device)
+  result =whisper_model.decode(wmodel, mel)
   return result.text
 
 
 def closest_direction(input_text:str)->str:
     """
     入力テキストに最も近い方向を判定する関数。
-    
+
     Args:
         input_text (str): 判定したいテキスト。
-    
+
     Returns:
         str: 最も近い方向（"上",  "左", "右" のいずれか）。
     """
