@@ -1,1 +1,1 @@
-web: gunicorn app:app
+web: ./compile.sh && gunicorn app:app
