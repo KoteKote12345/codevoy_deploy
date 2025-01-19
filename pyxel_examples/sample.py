@@ -12,7 +12,7 @@ import time
 model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
 
 # ターゲット単語
-directions = ["上", "左", "右"]
+directions = ["上", "右","左"]
 
 # ベクトル化
 direction_embeddings = model.encode(directions)
@@ -35,12 +35,23 @@ def closest_direction(input_text:str)->str:
         input_text (str): 判定したいテキスト。
     
     Returns:
-        str: 最も近い方向（"上", "下", "停止", "左", "右" のいずれか）。
+        str: 最も近い方向（"上",  "左", "右" のいずれか）。
     """
     encoding_input_text = model.encode([input_text])
     similarities = cosine_similarity(encoding_input_text, direction_embeddings).flatten()
-    print(similarities)
-    most_similar_direction = directions[similarities.argmax()]
+    #similarityのスコア計算
+    for direction, similarity in zip(directions, similarities):
+        print(f"{direction}: {similarity}")
+    # 最大値を取得
+    max_value = similarities.max()
+
+    # 最大値を持つインデックスを取得
+    max_indices = np.where(similarities == max_value)[0]
+    print(f"max_indices: {max_indices}")
+    # ランダムに1つ選択
+    selected_index = np.random.choice(max_indices)
+
+    most_similar_direction = directions[selected_index]
     return most_similar_direction
 
 # テスト例
