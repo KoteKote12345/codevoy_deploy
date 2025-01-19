@@ -6,6 +6,7 @@
 # version: 1.0
 
 import pyxel
+import time
 
 TRANSPARENT_COLOR = 2
 SCROLL_BORDER_X = 80
@@ -87,23 +88,47 @@ class Player:
         self.y = y
         self.dx = 0
         self.dy = 0
+        self.jump_start = 0
         self.direction = 1
         self.is_falling = False
+        self.is_moving_left = False  # 左方向の移動状態
+        self.is_moving_right = False  # 左方向の移動状態
 
+    ##　一旦左右のキーを押したらその方向に進み続ける仕様にした
     def update(self):
         global scroll_x
         last_y = self.y
         if pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_LEFT):
+            self.is_moving_right = True  # 右移動を有効にする
+            self.is_moving_left = False  # 左移動を無効化
             self.dx = -2
             self.direction = -1
         if pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT):
+            self.is_moving_left = True  # 左移動を有効にする
+            self.is_moving_right = False # 右移動を無効化
             self.dx = 2
             self.direction = 1
         self.dy = min(self.dy + 1, 3)
+
+        # ひとまず下キー押したら止まる仕様
+        if pyxel.btnp(pyxel.KEY_DOWN) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN):
+            self.is_moving_right = False  # 右移動を無効にする
+            self.is_moving_left = False  # 左移動を無効にする
+            self.dx = 0
+
         if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A):
-            self.dy = -6
-            pyxel.play(3, 8)
+            current_time = time.time()
+            if (current_time - self.jump_start > 0.5):
+                self.dy = -9
+                pyxel.play(3, 8)
+                self.jump_start = current_time
         self.x, self.y = push_back(self.x, self.y, self.dx, self.dy)
+
+        # 継続移動処理
+        if self.is_moving_right:
+            self.dx = -3
+        elif self.is_moving_left:
+            self.dx = 3
         if self.x < scroll_x:
             self.x = scroll_x
         if self.y < 0:
@@ -237,10 +262,14 @@ class App:
 
         player.update()
         for enemy in enemies:
-            if abs(player.x - enemy.x) < 6 and abs(player.y - enemy.y) < 6:
+            if abs(player.x - enemy.x) < 6 and -2 < player.y - enemy.y < 6:
                 game_over()
                 return
-            enemy.update()
+            if abs(player.x - enemy.x) < 6  and -6 <= player.y - enemy.y  <= -2:
+                pyxel.play(3, 8)
+                enemies.remove(enemy)
+                enemy.is_alive = False
+                player.x, player.y = push_back(player.x, player.y, player.dx, -10)
             if enemy.x < scroll_x - 8 or enemy.x > scroll_x + 160 or enemy.y > 160:
                 enemy.is_alive = False
         cleanup_entities(enemies)
