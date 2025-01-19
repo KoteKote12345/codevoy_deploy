@@ -14,12 +14,15 @@ TILE_FLOOR = (1, 0)
 TILE_SPAWN1 = (0, 1)
 TILE_SPAWN2 = (1, 1)
 TILE_SPAWN3 = (2, 1)
+# GOAL = (3, 1)
 WALL_TILE_X = 4
 
 scroll_x = 0
 player = None
 enemies = []
+goal = None
 
+timer = 0
 stage_list = ["assets/platformer.pyxres", "assets/platformer.pyxres", "assets/platformer.pyxres"]
 stage_num = 0
 
@@ -223,12 +226,22 @@ class Enemy3Bullet:
     def draw(self):
         u = pyxel.frame_count // 2 % 2 * 8 + 16
         pyxel.blt(self.x, self.y, 0, u, 32, 8, 8, TRANSPARENT_COLOR)
+class Goal():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def draw(self):
+        u = pyxel.frame_count // 2 % 2 * 8 + 16
+        pyxel.blt(self.x, self.y, 0, u, 32, 8, 8, TRANSPARENT_COLOR)
+
+
 
 
 class Stage:
     def __init__(self):
-        pyxel.init(128, 128, title="Pyxel Platformer")
-        pyxel.load("assets/platformer.pyxres")
+        # pyxel.load("ステージ名の画像")
+        pyxel.load(stage_list[stage_num])
 
         # Change enemy spawn tiles invisible
         pyxel.images[0].rect(0, 8, 24, 8, TRANSPARENT_COLOR)
@@ -238,7 +251,6 @@ class Stage:
         spawn_enemy(0, 127)
         pyxel.playm(0, loop=True)
         pyxel.run(self.update, self.draw)
-
     def update(self):
         if pyxel.btn(pyxel.KEY_Q):
             pyxel.quit()
@@ -257,6 +269,12 @@ class Stage:
             if enemy.x < scroll_x - 8 or enemy.x > scroll_x + 160 or enemy.y > 160:
                 enemy.is_alive = False
         cleanup_entities(enemies)
+        global timer
+        timer += 1
+
+        # if abs(player.x- goal.x) < 6:
+        #     clear()
+
 
     def draw(self):
         pyxel.cls(0)
@@ -266,6 +284,10 @@ class Stage:
         pyxel.bltm(0, 0, 0, (scroll_x // 4) % 128, 128, 128, 128)
         pyxel.bltm(0, 0, 0, scroll_x, 0, 128, 128, TRANSPARENT_COLOR)
 
+        pyxel.text(79, 2, "TIME:" + str(timer//30), 0)
+        pyxel.text(80, 3, "TIME:" + str(timer//30), 10)
+        pyxel.text(5, 3, "STAGE:" + str(stage_num + 1), 10)
+
         # Draw characters
         pyxel.camera(scroll_x, 0)
         player.draw()
@@ -274,20 +296,32 @@ class Stage:
 
 
 def game_over():
-    global scroll_x, enemies
+    global scroll_x, enemies, stage
     scroll_x = 0
     player.x = 0
     player.y = 0
     player.dx = 0
     player.dy = 0
+    global timer
+    timer = 0
     enemies = []
     spawn_enemy(0, 127)
     pyxel.play(3, 9)
 
+def clear():
+    #  pyxel.load("クリア画面")
+    if stage_num == 2:
+        pyxel.cls(0)
+        pyxel.text(55, 41, "コンプリートおめでとう！", 5)
+    stage_num += 1
+    global stage
+    stage = Stage()
+
 
 def App():
     pyxel.init(128, 128, title="Pyxel Platformer")
-    Stage()
+    global stage
+    stage = Stage()
 
 App()
 
