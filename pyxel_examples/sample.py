@@ -12,7 +12,7 @@ import time
 model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
 
 # ターゲット単語
-directions = ["上", "下", "停止", "左", "右"]
+directions = ["上", "左", "右"]
 
 # ベクトル化
 direction_embeddings = model.encode(directions)
