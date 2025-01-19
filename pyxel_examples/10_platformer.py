@@ -130,15 +130,16 @@ class Player:
         self.is_moving_right = False  # 左方向の移動状態
 
     ##　一旦左右のキーを押したらその方向に進み続ける仕様にした
-    def update(self):
+    def update(self,direction,presed_r):
+        audio_direction=direction if presed_r else None
         global scroll_x
         last_y = self.y
-        if pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_LEFT):
+        if pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_LEFT) or audio_direction == "左":
             self.is_moving_right = True  # 右移動を有効にする
             self.is_moving_left = False  # 左移動を無効化
             self.dx = -2
             self.direction = -1
-        if pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT):
+        if pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT) or audio_direction == "右":
             self.is_moving_left = True  # 左移動を有効にする
             self.is_moving_right = False # 右移動を無効化
             self.dx = 2
@@ -151,7 +152,7 @@ class Player:
             self.is_moving_left = False  # 左移動を無効にする
             self.dx = 0
 
-        if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A):
+        if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A) or audio_direction == "上":
             current_time = time.time()
             if (current_time - self.jump_start > 0.5):
                 self.dy = -9
@@ -298,18 +299,22 @@ class Stage:
         global player
         player = Player(0, 0)
         spawn_enemy(0, 127)
+        self.direction=None
+        self.pressed_r=False
         pyxel.playm(0, loop=True)
         pyxel.run(self.update, self.draw)
     def update(self):
+        self.pressed_r=False
         if pyxel.btnp(pyxel.KEY_R):  # 'R'キーを押したら録音
+            self.pressed_r=True
             audio_data = record_audio()
-            result = get_most_similar_direction(audio_data)
-            print(f"最も近い方向: '{result}'")
+            self.direction = get_most_similar_direction(audio_data)
+            print(f"最も近い方向: '{self.direction}'")
             
         if pyxel.btn(pyxel.KEY_Q):
             pyxel.quit()
 
-        player.update()
+        player.update(self.direction,self.pressed_r)
         for enemy in enemies:
             if abs(player.x - enemy.x) < 6 and -2 < player.y - enemy.y < 6:
                 game_over()
@@ -341,7 +346,8 @@ class Stage:
         pyxel.text(79, 2, "TIME:" + str(timer//30), 0)
         pyxel.text(80, 3, "TIME:" + str(timer//30), 10)
         pyxel.text(5, 3, "STAGE:" + str(stage_num + 1), 10)
-
+        english_direction = "UP" if self.direction == "上" else "LEFT" if self.direction == "左" else "RIGHT" if self.direction == "右" else None
+        pyxel.text(5, 10, f"DIRECTION (AUDIO):{english_direction}", 10)
         # Draw characters
         pyxel.camera(scroll_x, 0)
         player.draw()
