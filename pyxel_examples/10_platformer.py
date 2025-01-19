@@ -11,7 +11,7 @@ import sounddevice as sd
 import numpy as np
 import tempfile
 import wave
-from sample import get_text, closest_direction
+from get_direction_from_audio import get_text, closest_direction
 # 録音設定
 SAMPLE_RATE = 44100  # サンプルレート（44.1kHz）
 DURATION = 5       # 録音時間（1秒）
