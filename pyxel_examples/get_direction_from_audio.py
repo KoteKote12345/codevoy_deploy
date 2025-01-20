@@ -6,6 +6,7 @@ import whisper # whisperをimport
 from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
 import torch
+from difflib import SequenceMatcher
 
 # デバイスをCPUに設定
 device = torch.device('cpu')
@@ -21,7 +22,6 @@ model = SentenceTransformer('paraphrase-MiniLM-L6-v2', device=device)
 directions = ["上", "右","左"]
 
 # ベクトル化
-direction_embeddings = model.encode(directions)
 wmodel = whisper_model.load_model("small")
 
 def get_text(audio_path:str)->str:
@@ -33,32 +33,13 @@ def get_text(audio_path:str)->str:
   return result.text
 
 
-def closest_direction(input_text:str)->str:
+def closest_direction(input_text: str) -> str:
     """
     入力テキストに最も近い方向を判定する関数。
-
-    Args:
-        input_text (str): 判定したいテキスト。
-
-    Returns:
-        str: 最も近い方向（"上",  "左", "右" のいずれか）。
     """
-    encoding_input_text = model.encode([input_text])
-    similarities = cosine_similarity(encoding_input_text, direction_embeddings).flatten()
-    #similarityのスコア計算
-    for direction, similarity in zip(directions, similarities):
-        print(f"{direction}: {similarity}")
-    # 最大値を取得
-    max_value = similarities.max()
-
-    # 最大値を持つインデックスを取得
-    max_indices = np.where(similarities == max_value)[0]
-    print(f"max_indices: {max_indices}")
-    # ランダムに1つ選択
-    selected_index = np.random.choice(max_indices)
-
-    most_similar_direction = directions[selected_index]
-    return most_similar_direction
+    similarities = [SequenceMatcher(None, input_text, direction).ratio() for direction in directions]
+    max_index = int(np.argmax(similarities))
+    return directions[max_index]
 
 # テスト例
 if __name__ == "__main__":
