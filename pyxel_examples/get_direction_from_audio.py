@@ -2,7 +2,7 @@ import numpy as np
 import os  # 必要に応じて残す
 import time
 import whisper # whisperをimport
-from transformers import RobertaTokenizer
+# from transformers import RobertaTokenizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
 import torch
@@ -16,10 +16,6 @@ whisper_model.to(device) # whisperモデルもdeviceに配置
 
 # SentenceTransformerモデルのロード
 model = SentenceTransformer('paraphrase-MiniLM-L6-v2', device=device)
-
-# RobertaTokenizerをロード
-tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
-tokenizer.to(device)
 
 # ターゲット単語
 directions = ["上", "右","左"]

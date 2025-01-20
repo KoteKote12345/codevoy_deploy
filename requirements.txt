@@ -37,6 +37,6 @@ whisper==1.1.10
 
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch==2.1.2+cpu  # バージョンは適宜最新のものに
-transformers
+# transformers
 sentence-transformers
 openai-whisper==20240930
