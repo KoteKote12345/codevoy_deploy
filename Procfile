@@ -1,1 +1,1 @@
-web: ./compile.sh && gunicorn app:app
+web: gunicorn --config gunicorn.conf.py gettingstarted.wsgi
